@@ -206,11 +206,16 @@ return new class extends Migration
             $table->id();
             $table->foreignId('outlet_id')->nullable()->constrained()->comment('assigned after pairing');
             $table->string('serial_number')->unique();
+            $table->string('api_token', 64)->unique()->nullable()->comment('generated at pairing, bin client auth');
             $table->enum('status', ['unpaired', 'active', 'maintenance', 'offline'])->default('unpaired');
-            $table->unsignedTinyInteger('fill_level')->default(0)->comment('0-100 percentage');
+            $table->unsignedTinyInteger('fill_level')->default(0)->comment('0-100 cached percentage, derived from sensors');
+            $table->unsignedInteger('weight_grams')->default(0)->comment('current weight from load cell');
+            $table->decimal('capacity_liters', 5, 2)->default(20.00)->comment('total bin volume capacity');
+            $table->json('sensor_levels')->comment('IR sensor states: {"level_25": false, "level_50": false, "level_75": false, "level_100": false}');
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->timestamp('paired_at')->nullable();
+            $table->timestamp('last_pickup_at')->nullable()->comment('when bin was last collected');
             $table->timestamps();
         });
 
@@ -224,6 +229,7 @@ return new class extends Migration
             $table->foreignId('bin_id')->constrained();
             $table->foreignId('user_id')->nullable()->constrained()->comment('linked when user scans QR');
             $table->enum('status', ['active', 'completed', 'expired', 'terminated'])->default('active');
+            $table->boolean('cup_rinsed')->default(false)->comment('wash basin was used during session');
             $table->timestamp('started_at');
             $table->timestamp('ended_at')->nullable();
             $table->timestamps();
@@ -238,6 +244,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('bin_session_id')->constrained();
             $table->enum('waste_type', ['paper_cup', 'plastic_cup', 'lid', 'straw', 'napkin', 'liquid_waste']);
+            $table->enum('input_method', ['cup_slot', 'lid_slot', 'straw_slot', 'general_intake'])->comment('which slot the item came through');
             $table->foreignId('detected_brand_id')->nullable()->constrained('brands')->comment('cup brand from AI, nullable for lids/straws');
             $table->unsignedTinyInteger('confidence')->comment('0-100');
             $table->string('image_path');

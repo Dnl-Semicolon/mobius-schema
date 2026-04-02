@@ -488,8 +488,12 @@ class DatabaseSeeder extends Seeder
         DB::table('bins')->insert([
             'outlet_id' => 1,
             'serial_number' => 'MBS-SB-001',
+            'api_token' => bin2hex(random_bytes(32)),
             'status' => 'active',
             'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
             'latitude' => 5.4370,
             'longitude' => 100.3100,
             'paired_at' => now()->subWeek(),
@@ -501,8 +505,12 @@ class DatabaseSeeder extends Seeder
         DB::table('bins')->insert([
             'outlet_id' => 1,
             'serial_number' => 'MBS-SB-002',
+            'api_token' => bin2hex(random_bytes(32)),
             'status' => 'active',
             'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
             'latitude' => 5.4371,
             'longitude' => 100.3101,
             'paired_at' => now()->subWeek(),
@@ -514,8 +522,12 @@ class DatabaseSeeder extends Seeder
         DB::table('bins')->insert([
             'outlet_id' => 2,
             'serial_number' => 'MBS-SB-003',
+            'api_token' => bin2hex(random_bytes(32)),
             'status' => 'active',
             'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
             'latitude' => 5.3328,
             'longitude' => 100.3067,
             'paired_at' => now()->subWeek(),
@@ -527,8 +539,12 @@ class DatabaseSeeder extends Seeder
         DB::table('bins')->insert([
             'outlet_id' => 3,
             'serial_number' => 'MBS-MX-001',
+            'api_token' => bin2hex(random_bytes(32)),
             'status' => 'active',
             'fill_level' => 0,
+            'weight_grams' => 0,
+            'capacity_liters' => 20.00,
+            'sensor_levels' => json_encode(['level_25' => false, 'level_50' => false, 'level_75' => false, 'level_100' => false]),
             'latitude' => 5.4141,
             'longitude' => 100.3288,
             'paired_at' => now()->subWeek(),
@@ -540,22 +556,24 @@ class DatabaseSeeder extends Seeder
         // BIN SESSIONS
         // =============================================
 
-        // Session 1 — Mei Ling at Starbucks Gurney bin 1 (completed)
+        // Session 1 — Mei Ling at Starbucks Gurney bin 1 (gold standard: separated + rinsed)
         DB::table('bin_sessions')->insert([
             'bin_id' => 1,
             'user_id' => 8,
             'status' => 'completed',
+            'cup_rinsed' => true,
             'started_at' => now()->subHours(3),
             'ended_at' => now()->subHours(3)->addMinutes(5),
             'created_at' => now()->subHours(3),
             'updated_at' => now()->subHours(3)->addMinutes(5),
         ]);
 
-        // Session 2 — Mei Ling at Mixue Komtar bin (completed)
+        // Session 2 — Mei Ling at Mixue Komtar bin (no rinse, general intake)
         DB::table('bin_sessions')->insert([
             'bin_id' => 4,
             'user_id' => 8,
             'status' => 'completed',
+            'cup_rinsed' => false,
             'started_at' => now()->subHours(1),
             'ended_at' => now()->subHours(1)->addMinutes(4),
             'created_at' => now()->subHours(1),
@@ -566,10 +584,11 @@ class DatabaseSeeder extends Seeder
         // DETECTION EVENTS
         // =============================================
 
-        // Session 1: Starbucks cup at Starbucks bin — brand match
+        // Session 1: Starbucks cup — properly separated via cup slot
         DB::table('detection_events')->insert([
             'bin_session_id' => 1,
             'waste_type' => 'paper_cup',
+            'input_method' => 'cup_slot',
             'detected_brand_id' => 1,
             'confidence' => 92,
             'image_path' => 'detections/session1-cup.jpg',
@@ -583,10 +602,11 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now()->subHours(3)->addMinute(),
         ]);
 
-        // Session 1: lid (no brand — inherits from cup)
+        // Session 1: lid — separated via lid slot
         DB::table('detection_events')->insert([
             'bin_session_id' => 1,
             'waste_type' => 'lid',
+            'input_method' => 'lid_slot',
             'detected_brand_id' => 1,
             'confidence' => 87,
             'image_path' => 'detections/session1-lid.jpg',
@@ -601,10 +621,11 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now()->subHours(3)->addMinutes(2),
         ]);
 
-        // Session 1: straw (inherits brand from cup)
+        // Session 1: straw — separated via straw slot
         DB::table('detection_events')->insert([
             'bin_session_id' => 1,
             'waste_type' => 'straw',
+            'input_method' => 'straw_slot',
             'detected_brand_id' => 1,
             'confidence' => 95,
             'image_path' => 'detections/session1-straw.jpg',
@@ -619,10 +640,11 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now()->subHours(3)->addMinutes(3),
         ]);
 
-        // Session 2: Mixue cup at Mixue bin — brand match
+        // Session 2: Mixue cup — threw everything in general intake
         DB::table('detection_events')->insert([
             'bin_session_id' => 2,
             'waste_type' => 'plastic_cup',
+            'input_method' => 'general_intake',
             'detected_brand_id' => 2,
             'confidence' => 89,
             'image_path' => 'detections/session2-cup.jpg',
@@ -640,24 +662,24 @@ class DatabaseSeeder extends Seeder
         // RECYCLING TRANSACTIONS
         // =============================================
 
-        // Session 1 earned: cup(15) + lid(5) + straw(3) = 23 base × 1.5 brand match = 34
+        // Session 1: cup(15)+lid(5)+straw(3)=23 × 2.0 behavior(separated+rinsed) × 1.5 brand = 69
         DB::table('recycling_transactions')->insert([
             'user_id' => 8,
             'bin_session_id' => 1,
             'type' => 'earned',
-            'points' => 34,
-            'description' => 'Recycled 3 items at Starbucks Gurney Plaza — brand match bonus',
+            'points' => 69,
+            'description' => 'Gold standard: 3 items separated + rinsed at Starbucks Gurney — behavior 2.0x, brand 1.5x',
             'created_at' => now()->subHours(3)->addMinutes(5),
             'updated_at' => now()->subHours(3)->addMinutes(5),
         ]);
 
-        // Session 2 earned: cup(12) × 1.3 brand match = 15
+        // Session 2: cup only(12) × 1.0 behavior(general intake, no rinse) × 1.3 brand = 15
         DB::table('recycling_transactions')->insert([
             'user_id' => 8,
             'bin_session_id' => 2,
             'type' => 'earned',
             'points' => 15,
-            'description' => 'Recycled 1 item at Mixue Komtar — brand match bonus',
+            'description' => 'General intake: 1 item unseparated at Mixue Komtar — behavior 1.0x, brand 1.3x',
             'created_at' => now()->subHours(1)->addMinutes(4),
             'updated_at' => now()->subHours(1)->addMinutes(4),
         ]);
