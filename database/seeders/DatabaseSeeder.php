@@ -105,6 +105,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'phone' => '0121234567',
+            'phone_verified_at' => now(),
             'profile_photo_path' => 'profiles/daniel.jpg',
             'roles' => json_encode(['admin']),
             'points_balance' => 0,
@@ -124,6 +125,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'phone' => '0171112222',
+            'phone_verified_at' => now(),
             'profile_photo_path' => 'profiles/sarah.jpg',
             'roles' => json_encode(['brand_owner']),
             'points_balance' => 0,
@@ -143,6 +145,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'phone' => '0171113333',
+            'phone_verified_at' => now(),
             'profile_photo_path' => 'profiles/jenny.jpg',
             'roles' => json_encode(['store_owner']),
             'points_balance' => 0,
@@ -162,6 +165,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'phone' => '0171114444',
+            'phone_verified_at' => now(),
             'profile_photo_path' => 'profiles/weiming.jpg',
             'roles' => json_encode(['store_owner']),
             'points_balance' => 0,
@@ -181,6 +185,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'phone' => '0183334444',
+            'phone_verified_at' => now(),
             'profile_photo_path' => 'profiles/ahmad.jpg',
             'roles' => json_encode(['brand_owner']),
             'points_balance' => 0,
@@ -200,6 +205,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'phone' => '0183335555',
+            'phone_verified_at' => now(),
             'profile_photo_path' => 'profiles/nurul.jpg',
             'roles' => json_encode(['store_owner']),
             'points_balance' => 0,
@@ -219,6 +225,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'phone' => '0195556666',
+            'phone_verified_at' => now(),
             'profile_photo_path' => 'profiles/kumar.jpg',
             'roles' => json_encode(['collector']),
             'points_balance' => 0,
@@ -238,6 +245,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'phone' => '0167778888',
+            'phone_verified_at' => now(),
             'profile_photo_path' => 'profiles/meiling.jpg',
             'roles' => json_encode(['public_user']),
             'points_balance' => 0,
@@ -275,6 +283,38 @@ class DatabaseSeeder extends Seeder
             'renews_at' => now()->endOfYear()->subMonth(),
             'created_at' => now(),
             'updated_at' => now(),
+        ]);
+
+        // =============================================
+        // PAYMENTS
+        // =============================================
+
+        // Starbucks Malaysia — Pro plan payment
+        DB::table('payments')->insert([
+            'organization_id' => 1,
+            'subscription_id' => 1,
+            'amount' => 5990.00,
+            'currency' => 'MYR',
+            'method' => 'bank_transfer',
+            'status' => 'completed',
+            'reference_number' => 'PAY-2026-0001',
+            'paid_at' => now()->startOfYear(),
+            'created_at' => now()->startOfYear(),
+            'updated_at' => now()->startOfYear(),
+        ]);
+
+        // Mixue Malaysia — Basic plan payment
+        DB::table('payments')->insert([
+            'organization_id' => 2,
+            'subscription_id' => 2,
+            'amount' => 2990.00,
+            'currency' => 'MYR',
+            'method' => 'card',
+            'status' => 'completed',
+            'reference_number' => 'PAY-2026-0002',
+            'paid_at' => now()->startOfYear(),
+            'created_at' => now()->startOfYear(),
+            'updated_at' => now()->startOfYear(),
         ]);
 
         // =============================================

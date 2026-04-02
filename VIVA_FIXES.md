@@ -1,0 +1,12 @@
+not accurate CV \=\> The computer vision module is currently inaccurate, and its detection results are not yet reliable enough for actual system use.  
+45 deg (Ms. Liew Pui Fong) \=\> Cup-vs-straw misclassification is caused in part by insufficient training data at the right viewing angle. The dataset should include more cup images captured at around 45 degrees, because this angle shows the cup’s top opening, inner rim, and wider upper shape, which better distinguishes it from a straw. The detection camera should use a matching angle so real-world input is consistent with the training data.  
+width and height for cup and lid \=\> Cup and lid classification should use width, height, and overall object proportion as distinguishing features, because cups and lids have different visual dimensions that can help improve detection accuracy.  
+more ai generated for training \=\> The current training dataset is insufficient for reliable detection. More real training images are needed from the actual use case, while AI-generated images should be used as supplementary augmentation.  
+catalogue ada : payment module needed \=\> The catalogue module already exists, but the system still needs a payment module to support actual transaction processing.  
+detect contract end \=\> The system should support contract lifecycle management by storing each contract’s start date, end date, expiry, and renewal status.  
+renewal date \=\> Each contract should store a renewal date so its renewal can be managed properly through the system.  
+bin owner \=\> Each bin should have an owner recorded in the system so bin ownership is clear and traceable.  
+brand owner no OTP \=\> The system should require OTP verification wherever phone numbers are used, including brand owner registration, so phone numbers can be confirmed as real and reachable. This should apply whether the brand registers itself or is added manually by an admin.  
+reward budget \- expiry \=\> The reward module should store both reward budget and reward expiry, so reward availability and validity can be managed properly through the system.  
+route optimisation need to fix \=\> The route optimisation feature for the Collector role needs to be fixed so collectors can receive efficient collection routes based on the bins that require service.  
+store owner apps not connect to real bin \=\> The store owner application is not yet integrated with the real bin, so it does not currently use live bin data from actual hardware.

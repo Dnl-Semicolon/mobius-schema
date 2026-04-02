@@ -51,6 +51,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone')->nullable()->unique();
+            $table->timestamp('phone_verified_at')->nullable()->comment('OTP verification timestamp');
             $table->string('profile_photo_path');
             $table->json('roles'); // ['admin','brand_owner','store_owner','collector','public_user']
 
@@ -103,6 +104,23 @@ return new class extends Migration
             $table->timestamp('starts_at');
             $table->timestamp('ends_at');
             $table->timestamp('renews_at');
+            $table->timestamps();
+        });
+
+        // =============================================
+        // PAYMENTS
+        // =============================================
+        // Actual payment records for subscriptions.
+        Schema::create('payments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('organization_id')->constrained();
+            $table->foreignId('subscription_id')->constrained();
+            $table->decimal('amount', 10, 2);
+            $table->string('currency', 3)->default('MYR');
+            $table->enum('method', ['card', 'bank_transfer', 'manual']);
+            $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
+            $table->string('reference_number');
+            $table->timestamp('paid_at');
             $table->timestamps();
         });
 
@@ -306,6 +324,7 @@ return new class extends Migration
         Schema::dropIfExists('invitations');
         Schema::dropIfExists('brands');
         Schema::dropIfExists('registration_requests');
+        Schema::dropIfExists('payments');
         Schema::dropIfExists('subscriptions');
         Schema::dropIfExists('personal_access_tokens');
         Schema::dropIfExists('sessions');
