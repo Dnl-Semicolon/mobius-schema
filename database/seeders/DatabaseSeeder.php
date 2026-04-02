@@ -553,6 +553,83 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // =============================================
+        // PICKUP REQUESTS
+        // =============================================
+
+        // Automatic: bin 2 (Starbucks Gurney) hit 75% fill
+        DB::table('pickup_requests')->insert([
+            'bin_id' => 2,
+            'request_type' => 'automatic',
+            'requested_by' => null,
+            'reason' => 'Fill level reached 75% threshold',
+            'status' => 'completed',
+            'assigned_to' => 7,
+            'assigned_at' => now()->subDays(2),
+            'completed_at' => now()->subDays(2)->addMinutes(52),
+            'created_at' => now()->subDays(2)->subHour(),
+            'updated_at' => now()->subDays(2)->addMinutes(52),
+        ]);
+
+        // Emergency: store owner reports contamination at Mixue Komtar
+        DB::table('pickup_requests')->insert([
+            'bin_id' => 4,
+            'request_type' => 'emergency',
+            'requested_by' => 6,
+            'reason' => 'Liquid contamination — cups not rinsed, bin smells',
+            'status' => 'pending',
+            'assigned_to' => null,
+            'assigned_at' => null,
+            'completed_at' => null,
+            'created_at' => now()->subHour(),
+            'updated_at' => now()->subHour(),
+        ]);
+
+        // =============================================
+        // COLLECTION ROUTES
+        // =============================================
+
+        // Completed route — Kumar collected bins, optimized by Google Directions
+        DB::table('collection_routes')->insert([
+            'collector_id' => 7,
+            'status' => 'completed',
+            'depot_latitude' => 5.4141,
+            'depot_longitude' => 100.3288,
+            'depot_name' => 'Komtar Depot',
+            'total_distance_km' => 30.80,
+            'total_duration_min' => 52,
+            'route_polyline' => 'sample_encoded_polyline_from_google_directions_api',
+            'google_response' => json_encode(['note' => 'Full Google Directions API response stored here']),
+            'started_at' => now()->subDays(2),
+            'completed_at' => now()->subDays(2)->addMinutes(52),
+            'created_at' => now()->subDays(2),
+            'updated_at' => now()->subDays(2)->addMinutes(52),
+        ]);
+
+        // =============================================
+        // ROUTE STOPS
+        // =============================================
+
+        // Stop 1: Starbucks Gurney bin 2 (Google optimized this first)
+        DB::table('route_stops')->insert([
+            'collection_route_id' => 1,
+            'bin_id' => 2,
+            'pickup_request_id' => 1,
+            'stop_order' => 1,
+            'address' => '168A, Persiaran Gurney, 10350 George Town, Pulau Pinang',
+            'distance_km' => 4.00,
+            'duration_min' => 9,
+            'status' => 'completed',
+            'eta' => now()->subDays(2)->addMinutes(9),
+            'completed_at' => now()->subDays(2)->addMinutes(11),
+            'completed_latitude' => 5.4371,
+            'completed_longitude' => 100.3101,
+            'proof_image_path' => 'proofs/route1-stop1.jpg',
+            'skip_reason' => '',
+            'created_at' => now()->subDays(2),
+            'updated_at' => now()->subDays(2)->addMinutes(11),
+        ]);
+
+        // =============================================
         // BIN SESSIONS
         // =============================================
 

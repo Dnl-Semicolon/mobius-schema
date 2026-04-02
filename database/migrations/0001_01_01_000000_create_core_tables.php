@@ -220,6 +220,71 @@ return new class extends Migration
         });
 
         // =============================================
+        // PICKUP REQUESTS
+        // =============================================
+        // Queue of bins needing collection.
+        // Automatic (fill threshold) or emergency (store owner reports issue).
+        Schema::create('pickup_requests', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('bin_id')->constrained();
+            $table->enum('request_type', ['automatic', 'emergency'])->default('automatic');
+            $table->foreignId('requested_by')->nullable()->constrained('users')->comment('store owner for emergency requests');
+            $table->text('reason')->comment('why pickup is needed');
+            $table->enum('status', ['pending', 'assigned', 'completed', 'cancelled'])->default('pending');
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->comment('collector');
+            $table->timestamp('assigned_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
+            $table->timestamps();
+            $table->index(['status', 'created_at']);
+        });
+
+        // =============================================
+        // COLLECTION ROUTES
+        // =============================================
+        // Optimized route from Google Directions API.
+        // Collector visits bins in optimal order and returns to depot.
+        Schema::create('collection_routes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('collector_id')->constrained('users');
+            $table->enum('status', ['pending', 'accepted', 'in_progress', 'completed', 'rejected'])->default('pending');
+            $table->decimal('depot_latitude', 10, 7)->comment('start/end point');
+            $table->decimal('depot_longitude', 10, 7);
+            $table->string('depot_name');
+            $table->decimal('total_distance_km', 8, 2);
+            $table->unsignedInteger('total_duration_min');
+            $table->text('route_polyline')->comment('encoded polyline from Google Directions API');
+            $table->json('google_response')->comment('full API response for debugging/replay');
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
+            $table->timestamps();
+            $table->index(['collector_id', 'status']);
+        });
+
+        // =============================================
+        // ROUTE STOPS
+        // =============================================
+        // Each stop on a route, in optimized order.
+        // GPS audit trail + photo proof at each stop.
+        Schema::create('route_stops', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('collection_route_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('bin_id')->constrained();
+            $table->foreignId('pickup_request_id')->constrained();
+            $table->unsignedTinyInteger('stop_order')->comment('optimized order from Google');
+            $table->string('address')->comment('resolved address from Google');
+            $table->decimal('distance_km', 8, 2)->comment('distance of this leg');
+            $table->unsignedInteger('duration_min')->comment('duration of this leg');
+            $table->enum('status', ['pending', 'completed', 'skipped'])->default('pending');
+            $table->timestamp('eta')->nullable();
+            $table->timestamp('completed_at')->nullable();
+            $table->decimal('completed_latitude', 10, 7)->nullable()->comment('GPS where collector marked complete');
+            $table->decimal('completed_longitude', 10, 7)->nullable();
+            $table->string('proof_image_path')->nullable()->comment('photo proof of collection');
+            $table->string('skip_reason')->nullable();
+            $table->timestamps();
+        });
+
+        // =============================================
         // BIN SESSIONS
         // =============================================
         // One person's interaction with one bin.
@@ -326,6 +391,9 @@ return new class extends Migration
         Schema::dropIfExists('recycling_transactions');
         Schema::dropIfExists('detection_events');
         Schema::dropIfExists('bin_sessions');
+        Schema::dropIfExists('route_stops');
+        Schema::dropIfExists('collection_routes');
+        Schema::dropIfExists('pickup_requests');
         Schema::dropIfExists('bins');
         Schema::dropIfExists('outlets');
         Schema::dropIfExists('invitations');
